@@ -1,3 +1,4 @@
+const { application } = require('express');
 const express = require('express');
 const router = express.Router();
 const db = require('../../db/connection.js');
@@ -59,6 +60,7 @@ router.post('/voter', ({ body }, res) => {
     });
 });
 
+// Update Email address
 router.put('/voter/:id', (req, res) => {
     // Data Validation
     const errors = inputCheck(req.body, 'email');
@@ -82,6 +84,28 @@ router.put('/voter/:id', (req, res) => {
                 message: 'success',
                 data: req.body,
                 changes: result.affectedRows
+            });
+        }
+    });
+});
+
+// Delete voter from DB
+router.delete('/voter/:id', (req, res) => {
+    const sql = `DELETE FROM voters WHERE id = ?`;
+    const params = [req.params.id];
+
+    db.query(sql, params, (err, result) => {
+        if (err) {
+            res.status(400).json({ error: err.message });
+        } else if (!result.affectedRows) {
+            res.json({
+                message: "Voter not found"
+            });
+        } else {
+            res.json({
+                message: 'success',
+                changes: result.affectedRows,
+                id: req.params.id
             });
         }
     });
